@@ -2,8 +2,10 @@
 # 该插件不支持neper生成的文件格式（需要小小修改一下inp文件)，正常abaqus生成的文件可以使用
 # 作者： ShengZe Yang.
 # 全局变量
-set_list = ['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12','f13','f14','f15','f16','f17','f18','f19','f20']               # 文件中所有generate格式的element的set
-file_name = "test4.inp"     # 文件名
+name = 'f1;f2;f3;f4;f5;f6;f7;f8;f9;f10;f11;f12;f13;f14;f15;f16;f17;f18;f19;f20'
+# 上面变量写出set的名称，例:"Set-1;Set-2" 文件中所有generate格式的element的set
+set_list = name.split(';')
+file_name = "test4.inp"     # 文件名[按照自己需求修改]
 node_len = 0                # 最初文件中，节点总个数
 element_len = 0             # 最初文件中，单元总个数
 text = []                   # 遍历后的每一行的列表
@@ -14,8 +16,8 @@ new_node = {}               # 划分后的节点集合
 cohesive_dict = {}          # 总的内聚单元集合
 k = 0                       # 计数单位
 edge_dict = {}              # 晶界的内聚单元集合
-inter_dict = {}
-node_l = []
+inter_dict = {}             # 晶粒的内聚单元集合
+node_l = []                 # 携带晶界上的Node及晶界两边的Set信息的列表
 
 
 # 该函数遍历文件，获取点和单元的长度、集合。
@@ -184,7 +186,7 @@ def identify_interface(set_list):
         for j in i[2]:
             if j not in all_inter_node:
                 all_inter_node.append(j)
-    # for i in cohesive_dict:
+    # for i in cohesive_dict:               # 该串代码会造成BUG
     #     s = 0
     #     for j in cohesive_dict[i]:
     #         if fin_source_node(j) in all_inter_node:
@@ -217,19 +219,19 @@ get_message(file_name)
 
 print("节点总个数:",node_len)
 print('单元总个数:',element_len)
-# print('初始节点集合：',node_dict)
-# print('初始单元集合：',element_dict)
+print('初始节点集合：',node_dict)
+print('初始单元集合：',element_dict)
 
 modify_data()
 
 print('每个节点出现次数：',node_appearance)
-# print('修正后的节点集合:',new_node)
-# print('修正后的单元集合:',element_dict)
+print('修正后的节点集合:',new_node)
+print('修正后的单元集合:',element_dict)
 
 get_cohesive_all()
 
 print('全局内聚单元:',cohesive_dict)
-# print('计数单位K：',k)
+print('计数单位K：',k)
 
 identify_interface(set_list)
 identify_inter()
@@ -241,6 +243,7 @@ print('晶粒内的内聚单元',inter_dict)
 interfance_sort = sorted([int(i) for i in edge_dict.keys()])
 print(interfance_sort)
 print(len(interfance_sort))
+
 # 实施文件书写
 file = open('result.inp','w')
 for i in range(len(text)):
@@ -290,7 +293,6 @@ file.write('{0},   {1},   1'.format(element_len+1,k-1))
 file.write('\n')
 file.write('*Elset, elset=Cohesive-inter-set\n')
 inter_sort = sorted([int(i) for i in inter_dict.keys()])
-# print(inter_sort)
 for i in inter_sort:
     file.write(str(i))
     file.write(',   \n')
@@ -302,6 +304,3 @@ for i in interfance_sort:
     file.write(str(i))
     file.write(',   \n')
 file.write('*End Part')
-
-
-print(node_l)
