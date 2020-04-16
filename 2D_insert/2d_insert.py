@@ -171,7 +171,7 @@ def get_cohesive_all():
                     if fin_source_node(m) == fin_source_node(n):
                         l.append([m,n])
             if len(l) == 2:
-                cohesive_dict[str(k)] = [l[0][0],l[1][0],l[0][1],l[1][1]]
+                cohesive_dict[str(k)] = [l[1][0],l[0][0],l[0][1],l[1][1]]
                 k += 1
 
 
