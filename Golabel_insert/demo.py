@@ -149,7 +149,8 @@ def generate_coh_element(element_dict,node_dict):
                     if fin_source_node(m,node_dict) == fin_source_node(n,node_dict):
                         l.append([m,n])
             if len(l) == 2:
-                cohesive_dict[str(k)] = [l[0][0],l[1][0],l[0][1],l[1][1]]
+            # 顺序排错会造成单元过渡扭曲从而报错。
+                cohesive_dict[str(k)] = [l[1][0],l[0][0],l[0][1],l[1][1]]
                 k += 1
     print(k)
     print(cohesive_dict)
