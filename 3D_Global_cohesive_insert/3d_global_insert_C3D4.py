@@ -1,6 +1,6 @@
 # 3d批量插入cohesive单元（全局插入）
 # 该脚本暂只支持c3d4网格
-
+# 该单元格的晶界、晶粒内插入暂时将不会开发，因为我暂时用不到，请自行开发，其实并不难。
 # 全局变量
 file_name = 'neper.inp'
 text = []
@@ -86,7 +86,7 @@ def modify_data():
 
     n_node_app = dict.fromkeys(new_node, 1)
     for i in element_dict:
-        for j in range(node_str_len):
+        for j in range(4):
             for k in n_node_app:
                 if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
                     element_dict[i][j] =k
