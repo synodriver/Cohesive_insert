@@ -147,10 +147,10 @@ def modify_data():
         for j in range(node_appearance[i]):
             new_node[str(j * 10**len(str(max_node)) + int(i))] = node_dict[i]
 
-    node_len = len(str(max_node))
+    node_str_len = len(str(max_node))
     n_node_app = dict.fromkeys(new_node, 1)
     for i in element_dict:
-        for j in range(node_len):
+        for j in range(node_str_len):
             for k in n_node_app:
                 if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
                     element_dict[i][j] =k
@@ -182,10 +182,10 @@ def identify_interface(set_list):
     all_inter_node = []
     global edge_dict
     global inter_dict
-    for i in node_l:
-        for j in i[2]:
-            if j not in all_inter_node:
-                all_inter_node.append(j)
+    # for i in node_l:
+    #     for j in i[2]:
+    #         if j not in all_inter_node:
+    #             all_inter_node.append(j)
     # for i in cohesive_dict:               # 该串代码会造成BUG
     #     s = 0
     #     for j in cohesive_dict[i]:
