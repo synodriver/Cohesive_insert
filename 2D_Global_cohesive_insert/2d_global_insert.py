@@ -123,7 +123,7 @@ def modify_element(element_dict,node_dict):
     new_node = generate_node(element_dict,node_dict)
     n_node_app = dict.fromkeys(new_node, 1)
     for i in element_dict:
-        for j in range(node_len):
+        for j in range(3):
             for k in n_node_app:
                 if n_node_app[k] != 0 and fin_source_node(k,node_dict) == element_dict[i][j]:
                     element_dict[i][j] =k
