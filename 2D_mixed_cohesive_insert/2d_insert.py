@@ -149,8 +149,9 @@ def modify_data():
 
     node_str_len = len(str(max_node))
     n_node_app = dict.fromkeys(new_node, 1)
+    # 下面这个方法是旧方法，在单元为三棱柱情况下会出重大bug，而且逻辑复杂，新方法详见C3D6_global_insert.py
     for i in element_dict:
-        for j in range(node_str_len):
+        for j in range(3):
             for k in n_node_app:
                 if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
                     element_dict[i][j] =k
