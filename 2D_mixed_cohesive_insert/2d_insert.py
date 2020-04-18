@@ -1,6 +1,9 @@
 # 2d批量插入cohesive单元
 # 该插件不支持neper生成的文件格式（需要小小修改一下inp文件)，正常abaqus生成的文件可以使用
 # 作者： ShengZe Yang.
+# 由于生成的文件中不含原来的set，如果需要，可以参见以下代码
+import re
+
 # 全局变量
 name = 'f1;f2;f3;f4;f5;f6;f7;f8;f9;f10;f11;f12;f13;f14;f15;f16;f17;f18;f19;f20'
 # 上面变量写出set的名称，例:"Set-1;Set-2" 文件中所有generate格式的element的set
@@ -214,6 +217,16 @@ def identify_inter():
         else:
             inter_dict[i] = cohesive_dict[i]
 
+# 获取原始的inp文件中的set的element信息
+def get_set_message():
+    global set_message
+    set_message = []
+    for i in range(len(text)):
+        if text[i].startswith('*Elset, elset='):
+            set_name = re.findall(r'Elset, elset=(.*?),',text[i])
+            set_node = text[i+1]
+            set_message.append([set_name[0],set_node])
+然后再解除文本写入模块的一段代码注释即可
 
 # 测试部分（如无需要可以把所有print注释）
 get_message(file_name)
@@ -222,7 +235,7 @@ print("节点总个数:",node_len)
 print('单元总个数:',element_len)
 print('初始节点集合：',node_dict)
 print('初始单元集合：',element_dict)
-
+get_set_message()
 modify_data()
 
 print('每个节点出现次数：',node_appearance)
@@ -289,6 +302,9 @@ for i in cohesive_sort:
 
 file.write('*Elset, elset=Elset-union, generate\n')
 file.write('1,   {},   1\n'.format(element_len))
+for i in set_message:
+    file.write('*Elset, elset={}, generate\n'.format(i[0]))
+    file.write(i[1])
 file.write('*Elset, elset=Cohesive-all-set, generate\n')
 file.write('{0},   {1},   1'.format(element_len+1,k-1))
 file.write('\n')
