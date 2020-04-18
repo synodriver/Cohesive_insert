@@ -81,16 +81,14 @@ def modify_data():
     for i in node_dict:
         for j in range(node_appearance[i]):
             new_node[str(j * 10**len(str(max_node)) + int(i))] = node_dict[i]
-
-    node_str_len = len(str(max_node))
-
-    n_node_app = dict.fromkeys(new_node, 1)
+    Node_assign = dict.fromkeys(node_dict, 0)
     for i in element_dict:
-        for j in range(4):
-            for k in n_node_app:
-                if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
-                    element_dict[i][j] =k
-                    n_node_app[k] = 0
+        for j in range(3):
+            if Node_assign[element_dict[i][j]] < node_appearance[element_dict[i][j]]:
+                Newnode = str(Node_assign[element_dict[i][j]] * (10 ** (len(str(max_node)))) + int(element_dict[i][j]))
+                element_dict[i][j] = Newnode
+                Node_assign[fin_source_node(element_dict[i][j])] += 1
+
 
 
 def get_cohesive_all():
