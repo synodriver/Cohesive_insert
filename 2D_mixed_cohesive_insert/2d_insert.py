@@ -150,15 +150,22 @@ def modify_data():
         for j in range(node_appearance[i]):
             new_node[str(j * 10**len(str(max_node)) + int(i))] = node_dict[i]
 
-    node_str_len = len(str(max_node))
-    n_node_app = dict.fromkeys(new_node, 1)
-    # 下面这个方法是旧方法，在单元为三棱柱情况下会出重大bug，而且逻辑复杂，新方法详见C3D6_global_insert.py
+    # node_str_len = len(str(max_node))
+    # n_node_app = dict.fromkeys(new_node, 1)
+    # 下面这个方法是旧方法，在单元为三棱柱情况下会出重大bug
+    # for i in element_dict:
+    #     for j in range(3):
+    #         for k in n_node_app:
+    #             if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
+    #                 element_dict[i][j] =k
+    #                 n_node_app[k] = 0
+    Node_assign = dict.fromkeys(node_dict, 0)
     for i in element_dict:
         for j in range(3):
-            for k in n_node_app:
-                if n_node_app[k] != 0 and fin_source_node(k) == element_dict[i][j]:
-                    element_dict[i][j] =k
-                    n_node_app[k] = 0
+            if Node_assign[element_dict[i][j]] < node_appearance[element_dict[i][j]]:
+                Newnode = str(Node_assign[element_dict[i][j]] * (10 ** (len(str(max_node)))) + int(element_dict[i][j]))
+                element_dict[i][j] = Newnode
+                Node_assign[fin_source_node(element_dict[i][j])] += 1
 
 
 # 生成总的内聚单元
@@ -226,7 +233,6 @@ def get_set_message():
             set_name = re.findall(r'Elset, elset=(.*?),',text[i])
             set_node = text[i+1]
             set_message.append([set_name[0],set_node])
-然后再解除文本写入模块的一段代码注释即可
 
 # 测试部分（如无需要可以把所有print注释）
 get_message(file_name)
