@@ -1,7 +1,6 @@
 # 2d批量插入cohesive单元
 # 该插件不支持neper生成的文件格式（需要小小修改一下inp文件)，正常abaqus生成的文件可以使用
 # 作者： ShengZe Yang.
-# 由于生成的文件中不含原来的set，如果需要，可以参见以下代码
 import re
 
 # 全局变量
@@ -21,7 +20,7 @@ k = 0                       # 计数单位
 edge_dict = {}              # 晶界的内聚单元集合
 inter_dict = {}             # 晶粒的内聚单元集合
 node_l = []                 # 携带晶界上的Node及晶界两边的Set信息的列表
-
+set_message = []            # 携带原文件上每个set包含的element信息的列表
 
 # 该函数遍历文件，获取点和单元的长度、集合。
 def get_message(file_name):
