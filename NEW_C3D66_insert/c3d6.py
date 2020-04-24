@@ -1,14 +1,15 @@
 # 该文件是最新的C3D6的内聚力插入文件，配合多晶生成插件，可以完成插入
+# 更加不易出错（对于inp文件格式的依赖降低）
 # 作者：杨晟泽    时间：2020.4.24
-# 完全适用于用于形成北极星一个多晶切削教程，多晶建模可以联系 QQ1922875732
+# 完全适用于用于形成北极星一个多晶切削教程，多晶建模可以联系 QQ 1922875732
 # 全局变量
 name = ''
-for i in range(24):
-    add_str = "GrainGroup-{};".format(i+1)
+for i in range(24):     # range后面的数字是set集合的数目（不包括总的集合）
+    add_str = "GrainGroup-{};".format(i+1)      # set的前缀
     name += add_str
 # 上面变量写出set的名称，例:"Set-1;Set-2" 文件中所有generate格式的element的set
 set_list = name[:-1].split(';')       # set列表
-file_name = 'test1.inp'          # 要插入的文件名（生成的文件为result.inp）
+file_name = 'test1.inp'          # 要插入的文件名（生成的文件为result.inp） 重要！
 text = []                       # 读取文件的信息列表
 set_message = []                # 初始文件中的set信息
 node_dict = {}                  # 初始的节点列表
