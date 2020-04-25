@@ -25,6 +25,7 @@ edge_dict = {}                  # 晶界处的内聚单元列表
 inter_dict = {}                 # 晶粒处的内聚单元列表
 
 
+# 获取inp文件中的所有节点、单元的信息
 def get_message():
     global node_dict
     global node_len
@@ -64,6 +65,7 @@ def get_message():
     element_len = len(element_dict)
 
 
+# 获取一个节点需要分裂的次数（或者可以理解为一个节点周围有几个单元，分裂次数 = 单元数量[具体实现函数见modify_data]）
 def get_node_appear(element_dict, node_dict):
     global node_appearance
     node_appearance = dict.fromkeys(node_dict, 0)
@@ -84,6 +86,7 @@ def fin_source_node(x):
         return str(int(x[-dele_len:]))
 
 
+# 获取一个set里的所有的单元（和旧的c3d6_insert脚本有所不同）
 def get_set_element(setname):
     value = False
     generate_value = False
@@ -123,6 +126,7 @@ def intersection(set1,set2):
     return [var for var in n1 if var in n2]
 
 
+# 获取所有的晶粒(set)之间的交点，并生成列表，如[ [set-1,set-2,[1,2,3,4]],[set-1],set-3,[4,6,7,5],.... ]
 def get_all_intersection(set_list1):
     all = []
     re_all = []
@@ -223,6 +227,7 @@ def identify_interface():
         else:
             inter_dict[i] = cohesive_dict[i]
 
+# 这里运行功能函数，并计算每个函数的总耗时
 starttime = datetime.datetime.now()
 get_message()
 endtime = datetime.datetime.now()
@@ -324,5 +329,4 @@ file.write('*End Part')
 
 endtime = datetime.datetime.now()
 print('书写文件耗时(s):',(endtime-starttime).seconds)
-
-
+print('成功插入，请用abaqus打开result.inp文件检查嵌入结果')
