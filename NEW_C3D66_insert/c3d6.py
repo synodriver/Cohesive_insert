@@ -76,7 +76,7 @@ def get_node_appear(element_dict, node_dict):
 # 寻找分裂后的节点的源节点
 def fin_source_node(x):
     # max_node = len(node_dict)     # 程序过程优化
-    maxe_node = node_len
+    max_node = node_len
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
