@@ -3,6 +3,7 @@ import re
 # Written by YangShengZe   Time: 2020.4.18
 # 如有BUG,欢迎联系QQ：1922875732 ，如需调试找错，可以print下面的全局变量
 # 全局变量
+# 该脚本较为老旧，且兼容性不好，请参考new_c3d6_insert，不过作为学习每段函数的原理用非常推荐 2020.4.25
 name = 'f1;f2;f3;f4;f5;f6;f7'
 # 上面变量写出set的名称，例:"Set-1;Set-2" 文件中所有generate格式的element的set
 set_list = name.split(';')      # set列表
