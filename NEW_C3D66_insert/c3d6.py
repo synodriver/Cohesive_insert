@@ -1,3 +1,4 @@
+import datetime
 # 该文件是最新的C3D6的内聚力插入文件，配合多晶生成插件，可以完成插入
 # 更加不易出错（对于inp文件格式的依赖降低）
 # 作者：杨晟泽    时间：2020.4.24
@@ -222,12 +223,27 @@ def identify_interface():
         else:
             inter_dict[i] = cohesive_dict[i]
 
-
+starttime = datetime.datetime.now()
 get_message()
+endtime = datetime.datetime.now()
+print('get_message耗时(s):',(endtime-starttime).seconds)
+starttime = datetime.datetime.now()
 node_l = get_all_intersection(set_list)
+endtime = datetime.datetime.now()
+print('get_all_intersection耗时(s):',(endtime-starttime).seconds)
+starttime = datetime.datetime.now()
 modify_data()
+endtime = datetime.datetime.now()
+print('modify_data耗时(s):',(endtime-starttime).seconds)
+starttime = datetime.datetime.now()
 get_cohesive_all()
+endtime = datetime.datetime.now()
+print('get_cohesive_all耗时(s):',(endtime-starttime).seconds)
+starttime = datetime.datetime.now()
 identify_interface()
+endtime = datetime.datetime.now()
+print('identify_interface耗时(s):',(endtime-starttime).seconds)
+starttime = datetime.datetime.now()
 # 书写数据
 file = open('result.inp','w')
 for i in range(len(text)):
@@ -306,5 +322,7 @@ for i in interfance_sort:
     file.write(',   \n')
 file.write('*End Part')
 
+endtime = datetime.datetime.now()
+print('书写文件耗时(s):',(endtime-starttime).seconds)
 
 
