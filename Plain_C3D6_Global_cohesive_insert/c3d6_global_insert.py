@@ -32,7 +32,6 @@ def get_message():
         if value and i != '*Node\n':
             T = i.replace(' ','').replace('\n','').split(',')
             node_dict[T[0]] = T[1:]
-        else: pass
     try: del node_dict['']
     except: pass
     node_len = len(node_dict)
@@ -44,13 +43,9 @@ def get_message():
         if i.startswith('*Element'):
             eigenvalue = True
         elif i.startswith('*Elset') or i.startswith('*End'): break
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
-                T = i.replace(' ', '').replace('\n', '').split(',')
-                element_dict[T[0]] = T[1:]
-        else: pass
+        if eigenvalue and not i.startswith('*Element'):
+            T = i.replace(' ', '').replace('\n', '').split(',')
+            element_dict[T[0]] = T[1:]
     try: del element_dict['']
     except: pass
     element_len = len(element_dict)
@@ -61,8 +56,7 @@ def fin_source_node(x):
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
-    if len(x) > dele_len:
-        return str(int(x[-dele_len:]))
+    return str(int(x[-dele_len:]))
 
 
 def get_node_appear(element_dict, node_dict):
@@ -122,9 +116,12 @@ def get_cohesive_all():
         for j in range(i+1,element_len+1):
             l = []
             for m in element_dict[str(i)]:
-                for n in element_dict[str(j)]:
-                    if fin_source_node(m) == fin_source_node(n):
-                        l.append([m,n])
+                l.extend(
+                    [m, n]
+                    for n in element_dict[str(j)]
+                    if fin_source_node(m) == fin_source_node(n)
+                )
+
             if len(l) == 4:
                # print(l)
                 cohesive_dict[str(k)] = [l[0][0],l[1][0],l[3][0],l[2][0],l[0][1],l[1][1],l[3][1],l[2][1]]

@@ -13,11 +13,9 @@ def extract_node(text):
             eigenvalue = True
         elif i.startswith('*Element'):
             return node_dict
-        else: pass
         if eigenvalue and i != '*Node\n':
             T = i.replace(' ', '').replace('\n', '').split(',')
             node_dict[T[0]] = T[1:]
-        else: pass
 
 
 # 该函数用来获取inp文件中所有Element集合，并生成dict
@@ -29,23 +27,18 @@ def extract_element(text):
             eigenvalue = True
         elif i.startswith('*Nset') or i.startswith('*End'):
             return element_dict
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
-                T = i.replace(' ', '').replace('\n', '').split(',')
-                element_dict[T[0]] = T[1:]
-        else: pass
+        if eigenvalue and not i.startswith('*Element'):
+            T = i.replace(' ', '').replace('\n', '').split(',')
+            element_dict[T[0]] = T[1:]
 
 
 # 该函数用来获取指定Set的Element的起始值和终止值
 def get_set_extreme(text, set):
     for i in range(len(text)):
-        if text[i].startswith('*Elset, elset={}'.format(set)):
+        if text[i].startswith(f'*Elset, elset={set}'):
             start = int(text[i+1].replace(' ','').replace('\n','').split(',')[0])
             end = int(text[i+1].replace(' ','').replace('\n','').split(',')[1])
             return [start,end]
-        else: pass
 
 
 # 该函数用来获取指定Set的所有Element集合，并生成dict
@@ -59,14 +52,10 @@ def get_set_element(text,set):
             eigenvalue = True
         elif i.startswith('*Nset'):
             return set_element_dict
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
-                T = i.replace(' ', '').replace('\n', '').split(',')
-                if int(T[0]) in range(start,end+1):
-                    set_element_dict[T[0]] = T[1:]
-        else: pass
+        if eigenvalue and not i.startswith('*Element'):
+            T = i.replace(' ', '').replace('\n', '').split(',')
+            if int(T[0]) in range(start,end+1):
+                set_element_dict[T[0]] = T[1:]
 
 
 # 该函数用来获取任意两个set的点集和交接处的点集，[0]或[1]是set内，[2]是交界处,[3]和[4]是set们除去边界的点
@@ -113,8 +102,7 @@ def fin_source_node(x,node_dict):
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
-    if len(x) > dele_len:
-        return str(int(x[-dele_len:]))
+    return str(int(x[-dele_len:]))
 
 
 # 此函数用来生成修正后的单元
@@ -146,9 +134,13 @@ def generate_coh_element(element_dict,node_dict):
         for j in range(i+1,element_end+1):
             l = []
             for m in element[str(i)]:
-                for n in element[str(j)]:
-                    if fin_source_node(m,node_dict) == fin_source_node(n,node_dict):
-                        l.append([m,n])
+                l.extend(
+                    [m, n]
+                    for n in element[str(j)]
+                    if fin_source_node(m, node_dict)
+                    == fin_source_node(n, node_dict)
+                )
+
             if len(l) == 2:
             # 顺序排错会造成单元过渡扭曲从而报错。
                 cohesive_dict[str(k)] = [l[1][0],l[0][0],l[0][1],l[1][1]]

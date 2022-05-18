@@ -39,20 +39,17 @@ def fin_source_node(x):
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
-    if len(x) > dele_len:
-        return str(int(x[-dele_len:]))
+    return str(int(x[-dele_len:]))
 
 
 # 获取一个set里的所有的单元
 def get_set_element(set):
     def get_set_extreme(set):
         for i in range(len(text)):
-            if text[i].startswith('*Elset, elset={}'.format(set)):
+            if text[i].startswith(f'*Elset, elset={set}'):
                 start = int(text[i + 1].replace(' ', '').replace('\n', '').split(',')[0])
                 end = int(text[i + 1].replace(' ', '').replace('\n', '').split(',')[1])
                 return [start, end]
-            else:
-                pass
     extrme = get_set_extreme(set)
     start = extrme[0]
     end = extrme[1]
@@ -90,18 +87,12 @@ def intersection(set1,set2):
 # 获取所有的晶粒(set)之间的交点，并生成列表，如[ [set-1,set-2,[1,2,3,4]],[set-1],set-3,[4,6,7,5],.... ]
 def get_all_intersection(set_list):
     all = []
-    re_all = []
     for i in range(len(set_list)):
         for j in range(i+1,len(set_list)):
             a = intersection(get_set_element(set_list[i]),get_set_element(set_list[j]))
             s = [set_list[i],set_list[j],a]
             all.append(s)
-    for i in all:
-        if i[2].__len__() == 0:
-            pass
-        else:
-            re_all.append(i)
-    return re_all
+    return [i for i in all if i[2].__len__() != 0]
 
 
 # 主要功能函数部分【真正修改、读取文件的函数】
@@ -121,7 +112,6 @@ def get_message():
         if value and i != '*Node\n':
             T = i.replace(' ','').replace('\n','').split(',')
             node_dict[T[0]] = T[1:]
-        else: pass
     try: del node_dict['']
     except: pass
     node_len = len(node_dict)
@@ -133,13 +123,9 @@ def get_message():
         if i.startswith('*Element'):
             eigenvalue = True
         elif i.startswith('*Elset') or i.startswith('*End') or i.startswith('*Nset'): break
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
-                T = i.replace(' ', '').replace('\n', '').split(',')
-                element_dict[T[0]] = T[1:]
-        else: pass
+        if eigenvalue and not i.startswith('*Element'):
+            T = i.replace(' ', '').replace('\n', '').split(',')
+            element_dict[T[0]] = T[1:]
     try: del element_dict['']
     except: pass
     element_len = len(element_dict)
@@ -185,9 +171,12 @@ def get_cohesive_all():
         for j in range(i+1,element_len+1):
             l = []
             for m in element_dict[str(i)]:
-                for n in element_dict[str(j)]:
-                    if fin_source_node(m) == fin_source_node(n):
-                        l.append([m,n])
+                l.extend(
+                    [m, n]
+                    for n in element_dict[str(j)]
+                    if fin_source_node(m) == fin_source_node(n)
+                )
+
             if len(l) == 4:
                # print(l)
                 cohesive_dict[str(k)] = [l[0][0],l[1][0],l[3][0],l[2][0],l[0][1],l[1][1],l[3][1],l[2][1]]
@@ -206,13 +195,10 @@ def identify_interface(set_list):
             for m in cohesive_dict[j]:
                 if fin_source_node(m) in i[2]:
                     s += 1
-                else: pass
                 if s == 8:
                     edge_dict[j] = cohesive_dict[j]
     for i in cohesive_dict:
-        if i in edge_dict:
-            pass
-        else:
+        if i not in edge_dict:
             inter_dict[i] = cohesive_dict[i]
 
 

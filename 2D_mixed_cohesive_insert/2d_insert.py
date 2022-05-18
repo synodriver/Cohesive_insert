@@ -26,51 +26,43 @@ set_message = []            # 携带原文件上每个set包含的element信息�
 def get_message(file_name):
     global node_dict
     global element_dict
-    ori_inp = open(file_name)
-    global text
-    text = ori_inp.readlines()
-    # node
-    eigenvalue = False
-    for i in text:
-        if i.startswith('*Node'):
-            eigenvalue = True
-        elif i.startswith('*Element'):
-            break
-        else: pass
-        if eigenvalue and i != '*Node\n':
-            T = i.replace(' ', '').replace('\n', '').split(',')
-            node_dict[T[0]] = T[1:]
-        else: pass
-    # element
-    eigenvalue = False
-    for i in text:
-        if i.startswith('*Element'):
-            eigenvalue = True
-        elif i.startswith('*Nset') or i.startswith('*End'):
-            break
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
+    with open(file_name) as ori_inp:
+        global text
+        text = ori_inp.readlines()
+        # node
+        eigenvalue = False
+        for i in text:
+            if i.startswith('*Node'):
+                eigenvalue = True
+            elif i.startswith('*Element'):
+                break
+            if eigenvalue and i != '*Node\n':
+                T = i.replace(' ', '').replace('\n', '').split(',')
+                node_dict[T[0]] = T[1:]
+        # element
+        eigenvalue = False
+        for i in text:
+            if i.startswith('*Element'):
+                eigenvalue = True
+            elif i.startswith('*Nset') or i.startswith('*End'):
+                break
+            if eigenvalue and not i.startswith('*Element'):
                 T = i.replace(' ', '').replace('\n', '').split(',')
                 element_dict[T[0]] = T[1:]
-        else: pass
-    global node_len
-    node_len = len(node_dict)
-    global element_len
-    element_len = len(element_dict)
-    ori_inp.close()
+        global node_len
+        node_len = len(node_dict)
+        global element_len
+        element_len = len(element_dict)
 
 
 # 中间函数：该函数用来获取指定Set的所有Element集合，并生成dict
 def get_set_element(set):
     def get_set_extreme(set):
         for i in range(len(text)):
-            if text[i].startswith('*Elset, elset={}'.format(set)):
+            if text[i].startswith(f'*Elset, elset={set}'):
                 start = int(text[i + 1].replace(' ', '').replace('\n', '').split(',')[0])
                 end = int(text[i + 1].replace(' ', '').replace('\n', '').split(',')[1])
                 return [start, end]
-            else: pass
     eigenvalue = False
     set_element_dict = {}
     start = get_set_extreme(set)[0]
@@ -107,18 +99,12 @@ def intersection(set1,set2):
 # 该函数用来生成列表内所有的Set的相邻点，并生成列表
 def get_all_intersection(set_list):
     all = []
-    re_all = []
     for i in range(len(set_list)):
         for j in range(i+1,len(set_list)):
             a = intersection(get_set_element(set_list[i]),get_set_element(set_list[j]))
             s = [set_list[i],set_list[j],a]
             all.append(s)
-    for i in all:
-        if i[2].__len__() == 0:
-            pass
-        else:
-            re_all.append(i)
-    return re_all
+    return [i for i in all if i[2].__len__() != 0]
 
 
 # 寻找源节点（如1001节点的源节点是1，同理1023->23 .etc）
@@ -127,8 +113,7 @@ def fin_source_node(x):
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
-    if len(x) > dele_len:
-        return str(int(x[-dele_len:]))
+    return str(int(x[-dele_len:]))
 
 
 # 将节点重新划分，并修正单元
@@ -177,9 +162,12 @@ def get_cohesive_all():
         for j in range(i+1,element_len+1):
             l = []
             for m in element_dict[str(i)]:
-                for n in element_dict[str(j)]:
-                    if fin_source_node(m) == fin_source_node(n):
-                        l.append([m,n])
+                l.extend(
+                    [m, n]
+                    for n in element_dict[str(j)]
+                    if fin_source_node(m) == fin_source_node(n)
+                )
+
             if len(l) == 2:
                 cohesive_dict[str(k)] = [l[1][0],l[0][0],l[0][1],l[1][1]]
                 k += 1
@@ -210,7 +198,6 @@ def identify_interface(set_list):
             for m in cohesive_dict[j]:
                 if fin_source_node(m) in i[2]:
                     s += 1
-                else: pass
                 if s == 4:
                     edge_dict[j] = cohesive_dict[j]
 
@@ -218,9 +205,7 @@ def identify_interface(set_list):
 # 提取晶粒内的内聚单元
 def identify_inter():
     for i in cohesive_dict:
-        if i in edge_dict:
-            pass
-        else:
+        if i not in edge_dict:
             inter_dict[i] = cohesive_dict[i]
 
 # 获取原始的inp文件中的set的element信息

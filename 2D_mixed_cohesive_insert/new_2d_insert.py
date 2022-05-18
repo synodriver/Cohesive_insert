@@ -6,7 +6,7 @@ import datetime
 # 全局变量
 name = ''
 for i in range(38):     # range后面的数字是set集合的数目（不包括总的集合）
-    add_str = "face{};".format(i+1)      # set的前缀
+    add_str = f"face{i + 1};"
     name += add_str
 # 上面变量写出set的名称，例:"Set-1;Set-2" 文件中所有generate格式的element的set
 set_list = name[:-1].split(';')       # set列表
@@ -40,7 +40,6 @@ def get_message():
         if value and i != '*Node\n':
             T = i.replace(' ','').replace('\n','').split(',')
             node_dict[T[0]] = T[1:]
-        else: pass
     try: del node_dict['']
     except: pass
     node_len = len(node_dict)
@@ -52,13 +51,9 @@ def get_message():
         if i.startswith('*Element'):
             eigenvalue = True
         elif i.startswith('*Elset') or i.startswith('*End') or i.startswith('*Nset'): break
-        else: pass
-        if eigenvalue:
-            if i.startswith('*Element'): pass
-            else:
-                T = i.replace(' ', '').replace('\n', '').split(',')
-                element_dict[T[0]] = T[1:]
-        else: pass
+        if eigenvalue and not i.startswith('*Element'):
+            T = i.replace(' ', '').replace('\n', '').split(',')
+            element_dict[T[0]] = T[1:]
     try: del element_dict['']
     except: pass
     element_len = len(element_dict)
@@ -80,8 +75,7 @@ def fin_source_node(x):
     dele_len = len(str(max_node))
     if len(x) <= dele_len:
         return x
-    if len(x) > dele_len:
-        return str(int(x[-dele_len:]))
+    return str(int(x[-dele_len:]))
 
 
 def get_set_element(setname):
@@ -129,18 +123,12 @@ def intersection(set1,set2):
 
 def get_all_intersection(set_list1):
     all = []
-    re_all = []
     for i in range(len(set_list1)):
         for j in range(i+1,len(set_list1)):
             a = intersection(get_set_element(set_list[i]),get_set_element(set_list[j]))
             s = [set_list1[i],set_list1[j],a]
             all.append(s)
-    for i in all:
-        if i[2].__len__() == 0:
-            pass
-        else:
-            re_all.append(i)
-    return re_all
+    return [i for i in all if i[2].__len__() != 0]
 
 
 # 将节点重新划分，并修正单元
@@ -184,22 +172,22 @@ def get_cohesive_all():
     # 这里用三重循环来代替，除去部分不必要的运算，略为减少运算时间.
     for i in element_dict:
         for j in range(int(i)+1,element_len+1):
-            l = []
             k1 = []
             k2 = []
             l1 = []
-            for m in element_dict[i]:
-                l.append(m)
-            for n in element_dict[str(j)]:
-                l.append(n)
+            l = list(element_dict[i])
+            l.extend(iter(element_dict[str(j)]))
             for s in l:
                 k1.append(fin_source_node(s))
                 k2 = sorted(set(k1), key=k1.index)
             if len(k2) == 4:
                 for j in l:
-                    for r in l:
-                        if j != r and fin_source_node(j) == fin_source_node(r):
-                            l1.append([j,r])
+                    l1.extend(
+                        [j, r]
+                        for r in l
+                        if j != r and fin_source_node(j) == fin_source_node(r)
+                    )
+
             try:
                 cohesive_dict[str(k)] = [l1[1][0], l1[0][0], l1[0][1],l1[1][1]]
             except:
@@ -219,13 +207,10 @@ def identify_interface():
             for m in cohesive_dict[j]:
                 if fin_source_node(m) in i[2]:
                     s += 1
-                else: pass
                 if s == 4:
                     edge_dict[j] = cohesive_dict[j]
     for i in cohesive_dict:
-        if i in edge_dict:
-            pass
-        else:
+        if i not in edge_dict:
             inter_dict[i] = cohesive_dict[i]
 
 
